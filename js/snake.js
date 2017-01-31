@@ -1,6 +1,6 @@
 var canvas;
 var context;
-var unitSize = 10;
+var unitSize = 20;
 var INTERVAL = 100;
 var snakeHead;
 var body;
@@ -12,6 +12,7 @@ var UP = 38;
 var DOWN = 40;
 var RETURN = 13;
 var food;
+var hasEaten = false;
 var direction = "horizontal";
 var id;
 var gameStarted = false;
@@ -46,21 +47,30 @@ function drawFood(){
 }
 
 function eat(){
-    if (snakeHead.x == food.x && snakeHead.y == food.y){
+    dx = xSpeed;
+    dy = ySpeed;
+    if (snakeHead.x + dx == food.x && snakeHead.y + dy == food.y){
         score++;
         food = generateFoodPosition();
+        body.push({x: snakeHead.x, y:snakeHead.y});
+        snakeHead = {x: snakeHead.x + dx, y: snakeHead.y + dy};
+        hasEaten = true;
     }
 }
 
 function updateGame(){
     clearCanvas();
-    snakeHead.x = snakeHead.x + xSpeed;
-    snakeHead.y = snakeHead.y + ySpeed;
-    drawHead();
     eat();
+    if (!hasEaten){
+        snakeHead.x = snakeHead.x + xSpeed;
+        snakeHead.y = snakeHead.y + ySpeed;
+    }
+    drawHead();
+    drawBody();
     drawFood();
     if (xSpeed != 0) direction = "horizontal";
     if (ySpeed != 0) direction = "vertical";
+    hasEaten = false;
 }
 
 function generateRandomPosition(){
@@ -110,10 +120,10 @@ function startGame(){
     clearCanvas();
     snakeHead = {x:0, y:0};
     body = [];
+    food = generateFoodPosition();
+
     drawHead();
     drawBody();
-
-    food = generateFoodPosition();
     drawFood();
 
     id = setInterval(updateGame, INTERVAL);
