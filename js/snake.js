@@ -4,6 +4,7 @@ var unitSize = 10;
 var snakeHead;
 var xSpeed = unitSize;
 var ySpeed = 0;
+var food;
 
 function draw(piece){
     context.fillStyle = "black";
@@ -17,6 +18,23 @@ function updateGame(){
     snakeHead.x = snakeHead.x + xSpeed;
     snakeHead.y = snakeHead.y + ySpeed;
     draw(snakeHead);
+    draw(food);
+}
+
+function generateRandomPosition(){
+    numColumns = canvas.width/unitSize;
+    numRows = canvas.height/unitSize;
+    var posX = Math.floor(Math.random() * numColumns) * unitSize;
+    var posY = Math.floor(Math.random() * numRows) * unitSize;
+    return {x:posX, y:posY};
+}
+
+function generateFoodPosition(){
+    newPos = snakeHead;
+    while (newPos.x == snakeHead.x && newPos.y == snakeHead.y){
+        newPos = generateRandomPosition();
+    }
+    return newPos;
 }
 
 function startGame(){
@@ -25,5 +43,9 @@ function startGame(){
     
     snakeHead = {x:0, y:0};
     draw(snakeHead);
+
+    food = generateFoodPosition();
+    draw(food);
+
     setInterval(updateGame, 300);
 }
