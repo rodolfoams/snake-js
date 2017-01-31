@@ -4,12 +4,20 @@ var unitSize = 10;
 var snakeHead;
 var xSpeed = unitSize;
 var ySpeed = 0;
-var left = 37;
-var right = 39;
-var up = 38;
-var down = 40;
+var LEFT = 37;
+var RIGHT = 39;
+var UP = 38;
+var DOWN = 40;
+var RETURN = 13;
 var food;
 var direction = "horizontal";
+var id;
+var gameStarted = false;
+var highscore = 0;
+
+function clearCanvas(){
+    context.clearRect(0, 0, canvas.width, canvas.height);
+}
 
 function draw(piece, style){
     context.fillStyle = style;
@@ -18,8 +26,8 @@ function draw(piece, style){
     context.fill();
 }
 
-function updateGame(){
-    context.clearRect(0, 0, canvas.width, canvas.height);
+function UPdateGame(){
+    clearCanvas();
     snakeHead.x = snakeHead.x + xSpeed;
     snakeHead.y = snakeHead.y + ySpeed;
     draw(snakeHead, "black");
@@ -44,38 +52,57 @@ function generateFoodPosition(){
     return newPos;
 }
 
-function handleKeyPress(evt){
-    if (evt.keyCode == left && direction == "vertical"){
-        xSpeed -= unitSize;
-        ySpeed = 0;
+function handleKeydown(evt){
+    if (gameStarted){
+        if (evt.keyCode == LEFT && direction == "vertical"){
+            xSpeed -= unitSize;
+            ySpeed = 0;
+        }
+        if (evt.keyCode == RIGHT && direction == "vertical"){
+            xSpeed += unitSize;
+            ySpeed = 0;
+        }
+        if (evt.keyCode == UP && direction == "horizontal"){
+            xSpeed = 0;
+            ySpeed -= unitSize;
+        }
+        if (evt.keyCode == DOWN && direction == "horizontal"){
+            xSpeed = 0;
+            ySpeed += unitSize;
+        }
     }
-    if (evt.keyCode == right && direction == "vertical"){
-        xSpeed += unitSize;
-        ySpeed = 0;
-    }
-    if (evt.keyCode == up && direction == "horizontal"){
-        xSpeed = 0;
-        ySpeed -= unitSize;
-    }
-    if (evt.keyCode == down && direction == "horizontal"){
-        xSpeed = 0;
-        ySpeed += unitSize;
+    else {
+        if (evt.keyCode == RETURN && !gameStarted){
+            gameStarted = true;
+            startGame();
+        }
     }
 }
 
 function startGame(){
+    clearCanvas();
     snakeHead = {x:0, y:0};
     draw(snakeHead, "black");
 
     food = generateFoodPosition();
     draw(food, "red");
 
-    setInterval(updateGame, 300);
+    id = setInterval(UPdateGame, 300);
+}
+
+function prepareGame(){
+    clearCanvas();
+    context.beginPath();
+    context.font="30px Georgia";
+    var highscoreStr = "Highscore: " + highscore;
+    context.fillText(highscoreStr, 110 ,50);
+    context.font="15px Verdana";
+    context.fillText("- Press RETURN to play -",98, 100 );
 }
 
 window.onload = function(){
     canvas = document.getElementById("mainCanvas");
     context = canvas.getContext('2d');
-    startGame();
-    document.addEventListener('keydown', handleKeyPress);
+    prepareGame();
+    document.addEventListener('keydown', handleKeydown);
 };
