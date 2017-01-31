@@ -1,6 +1,7 @@
 var canvas;
 var context;
 var unitSize = 20;
+var unitOffset = 1;
 var INTERVAL = 100;
 var snakeHead;
 var body;
@@ -18,6 +19,7 @@ var id;
 var gameStarted = false;
 var highscore = 0;
 var score;
+var hasBeatenHighscore = false;
 
 function clearCanvas(){
     context.clearRect(0, 0, canvas.width, canvas.height);
@@ -26,7 +28,8 @@ function clearCanvas(){
 function draw(piece, style){
     context.fillStyle = style;
     context.beginPath();
-    context.rect(piece.x, piece.y, unitSize, unitSize);
+    context.rect(piece.x+unitOffset, piece.y + unitOffset,
+                 unitSize- 2*unitOffset, unitSize-2*unitOffset);
     context.fill();
 }
 
@@ -69,6 +72,16 @@ function updateBody(){
     body[i] = { x:snakeHead.x, y:snakeHead.y};
 }
 
+function gameOver(){
+    if (snakeHead.x < 0 || snakeHead.x >= canvas.width || 
+        snakeHead.y < 0 || snakeHead.y >= canvas.height) return true;
+
+    for (var i = 0; i<body.length; i++){
+        if (snakeHead.x == body[i].x && snakeHead.y == body[i].y) return true;
+    }
+    return false;
+}
+
 function updateGame(){
     clearCanvas();
     eat();
@@ -76,7 +89,15 @@ function updateGame(){
         updateBody();
         snakeHead.x = snakeHead.x + xSpeed;
         snakeHead.y = snakeHead.y + ySpeed;
-        
+    }
+    if (gameOver()){
+        clearInterval(id);
+        if (score > highscore) {
+            highscore = score;
+            hasBeatenHighscore = true;
+        }
+        prepareGame();
+        return;
     }
     drawHead();
     drawBody();
@@ -153,12 +174,21 @@ function startGame(){
 function prepareGame(){
     clearCanvas();
     context.beginPath();
+    context.fillStyle = "black";
+    gameStarted = false;
+    xSpeed = unitSize;
+    ySpeed = 0;
+    if (hasBeatenHighscore){
+        context.font = "20px Arial";
+        context.fillText("New record!", 145, 30);
+    }
     context.font="30px Georgia";
     var highscoreStr = "Highscore: " + highscore;
-    context.fillText(highscoreStr, 110 ,50);
+    context.fillText(highscoreStr, 110 ,80);
     context.font="15px Verdana";
-    context.fillText("- Press RETURN to play -",98, 100 );
+    context.fillText("- Press RETURN to play -",98, 130 );
     score = 0;
+    hasBeatenHighscore = false;
 }
 
 window.onload = function(){
