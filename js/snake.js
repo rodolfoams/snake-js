@@ -58,12 +58,25 @@ function eat(){
     }
 }
 
+function updateBody(){
+    if (body.length == 0) return;
+    var i=0;
+    while (i<body.length-1){
+        var tmp = body[i+1];
+        body[i] = { x:tmp.x, y:tmp.y };
+        i++;    
+    }
+    body[i] = { x:snakeHead.x, y:snakeHead.y};
+}
+
 function updateGame(){
     clearCanvas();
     eat();
     if (!hasEaten){
+        updateBody();
         snakeHead.x = snakeHead.x + xSpeed;
         snakeHead.y = snakeHead.y + ySpeed;
+        
     }
     drawHead();
     drawBody();
@@ -81,9 +94,17 @@ function generateRandomPosition(){
     return {x:posX, y:posY};
 }
 
+function isFree(pos){
+    if (pos.x == snakeHead.x && pos.y == snakeHead.y) return false;
+    for (var i=0; i<body.length; i++){
+        if (pos.x == body[i].x && pos.y == body[i].y) return false;
+    }
+    return true;
+}
+
 function generateFoodPosition(){
     newPos = snakeHead;
-    while (newPos.x == snakeHead.x && newPos.y == snakeHead.y){
+    while (!isFree(newPos)){
         newPos = generateRandomPosition();
     }
     return newPos;
