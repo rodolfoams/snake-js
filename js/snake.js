@@ -1,13 +1,14 @@
 var canvas;
 var context;
+var unitSize = 10;
 var snakeHead;
-var xSpeed = 10;
+var xSpeed = unitSize;
 var ySpeed = 0;
 
 function draw(piece){
     context.fillStyle = "black";
     context.beginPath();
-    context.rect(piece.x, piece.y, 10, 10);
+    context.rect(piece.x, piece.y, unitSize, unitSize);
     context.fill();
 }
 
