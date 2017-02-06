@@ -11,6 +11,10 @@ var LEFT = 37;
 var RIGHT = 39;
 var UP = 38;
 var DOWN = 40;
+var A = 65;
+var D = 68;
+var W = 87;
+var S = 83;
 var RETURN = 13;
 var food;
 var hasEaten = false;
@@ -20,6 +24,7 @@ var gameStarted = false;
 var highscore = 0;
 var score;
 var hasBeatenHighscore = false;
+var mutex = 0;
 
 function clearCanvas(){
     context.clearRect(0, 0, canvas.width, canvas.height);
@@ -58,6 +63,7 @@ function eat(){
         body.push({x: snakeHead.x, y:snakeHead.y});
         snakeHead = {x: snakeHead.x + dx, y: snakeHead.y + dy};
         hasEaten = true;
+        mutex = 0;
     }
 }
 
@@ -83,12 +89,14 @@ function gameOver(){
 }
 
 function updateGame(){
+	    mutex++;
     clearCanvas();
     eat();
     if (!hasEaten){
         updateBody();
         snakeHead.x = snakeHead.x + xSpeed;
         snakeHead.y = snakeHead.y + ySpeed;
+        mutex=0;
     }
     if (gameOver()){
         clearInterval(id);
@@ -133,21 +141,31 @@ function generateFoodPosition(){
 
 function handleKeydown(evt){
     if (gameStarted){
-        if (evt.keyCode == LEFT && direction == "vertical"){
-            xSpeed -= unitSize;
-            ySpeed = 0;
-        }
-        if (evt.keyCode == RIGHT && direction == "vertical"){
-            xSpeed += unitSize;
-            ySpeed = 0;
-        }
-        if (evt.keyCode == UP && direction == "horizontal"){
-            xSpeed = 0;
-            ySpeed -= unitSize;
-        }
-        if (evt.keyCode == DOWN && direction == "horizontal"){
-            xSpeed = 0;
-            ySpeed += unitSize;
+        var succeeded = false;
+        while(!succeeded){
+            while(mutex>0){ sleep(); }
+            var m=mutex++;
+            if (m>0) mutex--;
+            else {
+                if ((evt.keyCode == LEFT || evt.keyCode == A) && direction == "vertical"){
+                    xSpeed = -unitSize;
+                    ySpeed = 0;
+                }
+                else if ((evt.keyCode == RIGHT || evt.keyCode == D) && direction == "vertical"){
+                    xSpeed = unitSize;
+                    ySpeed = 0;
+                }
+                else if ((evt.keyCode == UP || evt.keyCode == W) && direction == "horizontal"){
+                    xSpeed = 0;
+                    ySpeed = -unitSize;
+                }
+                else if ((evt.keyCode == DOWN || evt.keyCode == S) && direction == "horizontal"){
+                    xSpeed = 0;
+                    ySpeed = unitSize;
+                }
+                else { mutex--; }
+                succeeded = true;
+            }
         }
     }
     else {
